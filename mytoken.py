@@ -10,9 +10,10 @@ import string
 import hashlib
 
 SECRET= "d48a055ac6d44a06" # please replace.
+
 def _generate_token(r):
     d = hex(int(datetime.datetime.now().strftime('%Y%m%d')))[2:]
-    token = d + hashlib.sha256((d + SECRET + r).encode('utf-8')).hexdigest() + r
+    token = hashlib.sha256((d + SECRET + r).encode('utf-8')).hexdigest() + r
     return token
 
 def create_token():
