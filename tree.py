@@ -128,7 +128,7 @@ if __name__ == "__main__":
     if args.filename:
         try:
             istream = open(args.filename, "r")
-        except FileNotFoundError as e:
+        except FileNotFoundError:
             print("No such file or directory: " +  args.filename)
             sys.exit(1)
     if args.delimiter:

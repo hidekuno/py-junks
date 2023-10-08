@@ -5,8 +5,6 @@
 # hidekuno@gmail.com
 #
 import sys
-import os.path
-import datetime
 import smtplib
 import argparse
 
