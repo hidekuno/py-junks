@@ -16,3 +16,4 @@ python junk tools.
 ### Toy scripts(mostly scrape)
 - nbp.py
 - draft.py
+- spotify2slack.py
