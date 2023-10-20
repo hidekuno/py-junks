@@ -4,9 +4,9 @@
 #
 # hidekuno@gmail.com
 #
-
 import datetime
 import pytz
+from email import utils
 
 def unixtime2date(u):
     # 1696561039
@@ -23,3 +23,8 @@ def aws2date(aws):
     # '2023-10-03T18:30:11.487+09:00'
     parsed_date = datetime.datetime.strptime(aws, '%Y-%m-%dT%H:%M:%S.%f%z')
     return parsed_date.strftime('%Y-%m-%d %H:%M:%S')
+
+def mail2date(r):
+    # RFC2822
+    # ex) Sun, 17 Oct 2010 22:31:50 +0900 (JST)
+    return datetime.datetime(*utils.parsedate(r)[:7]).strftime('%Y-%m-%d %H:%M:%S')
