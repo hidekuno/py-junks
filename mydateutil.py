@@ -7,6 +7,7 @@
 import datetime
 import pytz
 from email import utils
+import imaplib
 
 def unixtime2date(u):
     # 1696561039
@@ -28,3 +29,8 @@ def mail2date(r):
     # RFC2822
     # ex) Sun, 17 Oct 2010 22:31:50 +0900 (JST)
     return datetime.datetime(*utils.parsedate(r)[:7]).strftime('%Y-%m-%d %H:%M:%S')
+
+def internal_date2date(imap_date):
+    # 27-Oct-2023 13:04:49 +0900
+    st = imaplib.Internaldate2tuple(f'INTERNALDATE "{imap_date}"'.encode())
+    return datetime.datetime(*st[:6]).strftime('%Y-%m-%d %H:%M:%S')
