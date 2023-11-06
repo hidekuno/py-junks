@@ -18,3 +18,4 @@ python junk tools.
 - draft.py
 - spotify2slack.py
 - gtk_font.py
+- rust_elisp.py
