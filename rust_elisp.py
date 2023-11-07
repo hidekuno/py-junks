@@ -34,5 +34,7 @@ def repl():
         except KeyboardInterrupt:
             print("")
             continue
+        except EOFError:
+            break
 
 repl()
