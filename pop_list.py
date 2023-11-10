@@ -6,6 +6,7 @@
 #
 import poplib
 
+
 def pop_list(server, user, password):
     cli = poplib.POP3(server)
     cli.user(user)

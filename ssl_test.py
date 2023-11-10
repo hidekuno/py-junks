@@ -12,6 +12,8 @@ test_host="www.yahoo.co.jp"
 check_cipher(test_host, "RC4-MD5:AES256-SHA")
 check_cipher(test_host, "RC4-MD5:AES128-SHA")
 """
+
+
 def check_cipher(host, cipher):
     try:
         ssl_sock = ssl.wrap_socket(socket.socket(), ciphers=cipher)

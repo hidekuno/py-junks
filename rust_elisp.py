@@ -8,16 +8,20 @@ import ctypes
 import os
 import sys
 
-sofile = os.path.join(os.environ['HOME'], "rust-elisp","ffilisp","target","release","libffilisp.so")
+sofile = os.path.join(
+    os.environ["HOME"], "rust-elisp", "ffilisp", "target", "release", "libffilisp.so"
+)
 if not os.path.isfile(sofile):
     sys.exit(1)
 
 rust = ctypes.cdll.LoadLibrary(sofile)
 
+
 def do_scheme(ex):
-    p = ctypes.create_string_buffer(ex.encode('utf-8'))
+    p = ctypes.create_string_buffer(ex.encode("utf-8"))
     r = rust.do_scheme(p)
-    return ctypes.c_char_p(r).value.decode('utf-8')
+    return ctypes.c_char_p(r).value.decode("utf-8")
+
 
 def repl():
     print("######## This is a mini lisp like Scheme. #######\n")
@@ -36,5 +40,6 @@ def repl():
             continue
         except EOFError:
             break
+
 
 repl()
