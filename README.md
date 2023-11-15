@@ -19,3 +19,4 @@ python junk tools.
 - spotify2slack.py
 - gtk_font.py
 - rust_elisp.py
+- img_view.py
