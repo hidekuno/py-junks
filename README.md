@@ -12,6 +12,7 @@ python junk tools.
 - pop_list.py
 - ssl_test.py
 - tree.py
+- txt_tool.py
 
 ### Toy scripts(mostly scrape)
 - nbp.py
