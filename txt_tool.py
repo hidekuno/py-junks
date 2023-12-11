@@ -44,7 +44,7 @@ def check_words_length(s):
         print_result()
 
 # test code
-#check_words_length('"abc def"  hoge     foo  "ghi jkl" "\\"')
+#check_words_length('"abc \\" def"  hoge     foo  "ghi jkl" "\\""')
 #check_words_length('12345 "abc def"    67890')
 
 if __name__ == "__main__":
