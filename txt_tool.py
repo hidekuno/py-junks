@@ -27,9 +27,12 @@ def check_words_length(s):
                 words += c
         elif sp_mode:
             if is_whitespace(c):
-                print_result()
-                words = ""
-                sp_mode = False
+                if pc == '\\':
+                    words += c
+                else:
+                    print_result()
+                    words = ""
+                    sp_mode = False
             else:
                 words += c
         else:
@@ -46,6 +49,7 @@ def check_words_length(s):
 # test code
 #check_words_length('"abc \\" def"  hoge     foo  "ghi jkl" "\\""')
 #check_words_length('12345 "abc def"    67890')
+#check_words_length('\\ 12345    \\     67890')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
