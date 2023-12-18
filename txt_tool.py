@@ -14,14 +14,20 @@ def check_words_length(s):
     pc = None
     words = ""
 
-    print_result = lambda : print(f'"{words}"', ":", len(words))
     is_whitespace = lambda c: c == ' ' or c == "\n"
+    def print_result():
+        nonlocal words
+        print(f'"{words}"', ":", len(words))
+        words = ""
 
     for c in s:
         if dq_mode:
             if c == '"' and pc != '\\':
                 print_result()
-                words = ""
+                dq_mode = False
+            elif is_whitespace(c)  and pc == '"':
+                words = words[0:-1]
+                print_result()
                 dq_mode = False
             else:
                 words += c
@@ -31,7 +37,6 @@ def check_words_length(s):
                     words += c
                 else:
                     print_result()
-                    words = ""
                     sp_mode = False
             else:
                 words += c
