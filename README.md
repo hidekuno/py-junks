@@ -16,6 +16,7 @@ python junk tools.
 
 ### Toy scripts(mostly scrape)
 - nbp.py
+- ekiden.py
 - draft.py
 - spotify2slack.py
 - gtk_font.py
