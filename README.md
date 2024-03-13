@@ -13,6 +13,8 @@ python junk tools.
 - ssl_test.py
 - tree.py
 - txt_tool.py
+- mail_ja_sample.py
+- spdf.py
 
 ### Toy scripts(mostly scrape)
 - nbp.py
