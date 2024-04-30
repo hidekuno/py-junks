@@ -2,6 +2,12 @@
 #
 # this is toy tool
 #
+# [notice]
+#   To run this program, python must be built with clang.
+#   ex.)
+#     sudo apt install clang
+#     CC=clang pyenv install 3.11.6
+#
 # hidekuno@gmail.com
 #
 import ctypes
