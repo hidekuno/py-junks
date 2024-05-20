@@ -84,7 +84,6 @@ def repl():
                 prompt=""
                 continue
 
-            #print(program)
             value = do_scheme(program)
             print(value)
             prompt=PROMPT
