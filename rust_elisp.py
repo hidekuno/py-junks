@@ -13,6 +13,9 @@
 import ctypes
 import os
 import sys
+from enum import Enum
+
+PROMPT="<rust-elisp> "
 
 sofile = os.path.join(
     os.environ["HOME"], "rust-elisp", "ffilisp", "target", "release", "libffilisp.so"
@@ -28,24 +31,68 @@ def do_scheme(ex):
     r = rust.do_scheme(p)
     return ctypes.c_char_p(r).value.decode("utf-8")
 
+def count_parenthesis(program):
+    class CharMode(Enum):
+        INIT = 0
+        WHITESPACE = 1
+        SHARP = 2
+        BACKSLASH = 3
+
+    left, right = 0,0
+    pre = ''
+    str_mode = False
+    char_mode = CharMode.WHITESPACE
+
+    for c in program:
+        if str_mode:
+            if pre != '\\' and  c == '"':
+                str_mode = False
+        elif char_mode == CharMode.BACKSLASH:
+            char_mode = CharMode.INIT
+        elif pre != '\\' and  c == '"':
+            str_mode = True
+        elif c.isspace() and char_mode == CharMode.INIT:
+            char_mode = CharMode.WHITESPACE
+        elif c == '#' and char_mode == CharMode.WHITESPACE:
+            char_mode = CharMode.SHARP
+        elif c == '\\' and char_mode == CharMode.SHARP:
+            char_mode = CharMode.BACKSLASH
+        elif c == '(':
+            left += 1
+        elif c == ')':
+            right += 1
+        pre = c
+
+    return (left, right)
 
 def repl():
     print("######## This is a mini lisp like Scheme. #######\n")
 
+    program=""
+    prompt=PROMPT
     while True:
         try:
-            exp = input("<rust-elisp> ")
-            if exp == "(quit)":
+            ex = input(prompt)
+            if ex == "(quit)":
                 break
-            if exp == "":
+            if ex == "":
                 continue
-            value = do_scheme(exp)
+
+            program += ex + "\n"
+            left, right = count_parenthesis(program)
+            if left > right:
+                prompt=""
+                continue
+
+            #print(program)
+            value = do_scheme(program)
             print(value)
+            prompt=PROMPT
         except KeyboardInterrupt:
             print("")
             continue
         except EOFError:
             break
 
-
+        program=""
 repl()

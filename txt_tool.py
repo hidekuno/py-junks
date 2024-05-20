@@ -9,30 +9,29 @@ import os
 import argparse
 
 def check_words_length(s):
-    dq_mode = False
+    str_mode = False
     sp_mode = False
     pc = None
     words = ""
 
-    is_whitespace = lambda c: c == ' ' or c == "\n"
     def print_result():
         nonlocal words
         print(f'"{words}"', ":", len(words))
         words = ""
 
     for c in s:
-        if dq_mode:
+        if str_mode:
             if c == '"' and pc != '\\':
                 print_result()
-                dq_mode = False
-            elif is_whitespace(c)  and pc == '"':
+                str_mode = False
+            elif c.isspace() and pc == '"':
                 words = words[0:-1]
                 print_result()
-                dq_mode = False
+                str_mode = False
             else:
                 words += c
         elif sp_mode:
-            if is_whitespace(c):
+            if c.isspace():
                 if pc == '\\':
                     words += c
                 else:
@@ -42,8 +41,8 @@ def check_words_length(s):
                 words += c
         else:
             if c == '"' and pc != '\\':
-                dq_mode = True
-            elif (is_whitespace(pc) or not pc) and c != ' ':
+                str_mode = True
+            elif (not pc or pc.isspace()) and c != ' ':
                 sp_mode = True
                 words += c
         pc = c
