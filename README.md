@@ -15,6 +15,7 @@ python junk tools.
 - txt_tool.py
 - mail_ja_sample.py
 - spdf.py
+- ocr_sample.py
 
 ### Toy scripts(mostly scrape)
 - nbp.py
@@ -24,3 +25,4 @@ python junk tools.
 - gtk_font.py
 - rust_elisp.py
 - img_view.py
+- certbot_expect.py
