@@ -3,7 +3,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import paramiko
-from os.path import basename,dirname,join,sep
+from os.path import basename, dirname, join, sep
 import stat
 
 SSH_TIMEOUT = 5
@@ -18,6 +18,7 @@ class ValidationError(Exception):
         super(ValidationError, self).__init__(
             err_msg
         )
+
     def __str__(self):
         return "ValidationError"
 
@@ -56,14 +57,14 @@ def ssh_list_directory(data, ssh_client):
     ret = stdout.channel.recv_exit_status()
 
     if ret != 0:
-        err =  stderr.read().decode().split('\n')
+        err = stderr.read().decode().split('\n')
         return jsonify({"error": err[0]}), 400
 
     # delete empty record.
     dirs = sorted(stdout.read().decode().split('\n'))[1:]
     result = {
-        "current_dir": dirname(dirs[0]+sep),
-        "dirs": [ basename(d) for d in dirs[1:] ]
+        "current_dir": dirname(dirs[0] + sep),
+        "dirs": [basename(d) for d in dirs[1:]]
     }
     return jsonify(result)
 
@@ -80,8 +81,8 @@ def sftp_list_directory(data, ssh_client):
     }
     return jsonify(result)
 
-@app.route('/list_dir', methods=['GET','POST'])
-def list_directory():
+
+def core_proc(listdir):
     ssh_client = paramiko.SSHClient()
 
     try:
@@ -107,6 +108,17 @@ def list_directory():
 
     finally:
         ssh_client.close()
+
+
+@app.route('/list_dir/ssh', methods=['GET', 'POST'])
+def list_dir_ssh():
+    return core_proc(ssh_list_directory)
+
+
+@app.route('/list_dir/sftp', methods=['GET', 'POST'])
+def list_dir_sftp():
+    return core_proc(sftp_list_directory)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000,)
