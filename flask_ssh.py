@@ -4,6 +4,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import paramiko
 from os.path import basename, dirname, join, sep
+from os import access, R_OK
 import stat
 
 SSH_TIMEOUT = 5
@@ -42,6 +43,14 @@ def validate_json(data):
     ssh_port = data.get("port")
     if not ssh_port:
         raise ValidationError("No port number specified")
+    if not ssh_port.isdigit():
+        raise ValidationError("No port number specified")
+
+    ssh_keyfile = data.get("key_file")
+    if not ssh_keyfile:
+        raise ValidationError("No port number specified")
+    if not access(ssh_keyfile, R_OK):
+        raise ValidationError("No such key file")
 
 
 def ssh_list_directory(data, ssh_client):
@@ -93,6 +102,7 @@ def core_proc(listdir):
         ssh_client.connect(data.get("host"),
                            port=data.get("port"),
                            username=data.get("user"),
+                           key_filename=data.get("key_file"),
                            timeout=SSH_TIMEOUT)
 
         return sftp_list_directory(data, ssh_client)
