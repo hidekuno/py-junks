@@ -6,6 +6,7 @@ import paramiko
 from os.path import basename, dirname, join, sep
 from os import access, R_OK
 import stat
+import traceback
 
 SSH_TIMEOUT = 5
 
@@ -105,15 +106,17 @@ def core_proc(listdir):
                            key_filename=data.get("key_file"),
                            timeout=SSH_TIMEOUT)
 
-        return sftp_list_directory(data, ssh_client)
+        return listdir(data, ssh_client)
 
     except ValidationError as e:
         return jsonify({"error": e.err_msg}), 400
 
     except paramiko.SSHException as e:
+        traceback.print_exc()
         return jsonify({"error": f"SSH Error: {str(e)}"}), 500
 
     except Exception as e:
+        traceback.print_exc()
         return jsonify({"error": f"Error: {str(e)}"}), 500
 
     finally:
