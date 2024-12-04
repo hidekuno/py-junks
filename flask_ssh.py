@@ -1,17 +1,30 @@
 # pip install flask flask-cors
 
+from flask.logging import logging as flask_logging
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import paramiko
 from os.path import basename, dirname, join, sep
-from os import access, R_OK
+import sys
 import stat
 import traceback
+import io
+import argparse
+
 
 SSH_TIMEOUT = 5
-
+KEY_FILE = "/app/keyfile"
+on_local = False
 app = Flask(__name__)
 CORS(app)
+
+
+class AwsEcsFilter(flask_logging.Filter):
+    def filter(record):
+        return 'GET /healthcheck' not in record.getMessage()
+
+
+flask_logging.getLogger("werkzeug").addFilter(AwsEcsFilter)
 
 
 class ValidationError(Exception):
@@ -46,12 +59,6 @@ def validate_json(data):
         raise ValidationError("No port number specified")
     if not ssh_port.isdigit():
         raise ValidationError("No port number specified")
-
-    ssh_keyfile = data.get("key_file")
-    if not ssh_keyfile:
-        raise ValidationError("No port number specified")
-    if not access(ssh_keyfile, R_OK):
-        raise ValidationError("No such key file")
 
 
 def ssh_list_directory(data, ssh_client):
@@ -92,19 +99,34 @@ def sftp_list_directory(data, ssh_client):
     return jsonify(result)
 
 
-def core_proc(listdir):
+def connect_on_local(ssh_client, data):
+    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh_client.connect(data.get("host"),
+                       port=data.get("port"),
+                       username=data.get("user"),
+                       # key_filename=data.get(KEY_FILE),
+                       timeout=SSH_TIMEOUT)
+
+
+def connect_on_ecs(ssh_client, data):
+    with open(KEY_FILE) as fd:
+        pk = paramiko.RSAKey.from_private_key(io.StringIO(fd.read()))
+
+    ssh_client.set_missing_host_key_policy(paramiko.WarningPolicy())
+    ssh_client.connect(data.get("host"),
+                       port=data.get("port"),
+                       username=data.get("user"),
+                       pkey=pk,
+                       timeout=SSH_TIMEOUT)
+
+
+def core_proc(listdir, ssh_connect):
     ssh_client = paramiko.SSHClient()
 
     try:
         data = request.get_json()
         validate_json(data)
-
-        ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh_client.connect(data.get("host"),
-                           port=data.get("port"),
-                           username=data.get("user"),
-                           key_filename=data.get("key_file"),
-                           timeout=SSH_TIMEOUT)
+        ssh_connect(ssh_client, data)
 
         return listdir(data, ssh_client)
 
@@ -125,13 +147,28 @@ def core_proc(listdir):
 
 @app.route('/list_dir/ssh', methods=['GET', 'POST'])
 def list_dir_ssh():
-    return core_proc(ssh_list_directory)
+    return core_proc(ssh_list_directory,
+                     connect_on_local if on_local else connect_on_ecs)
 
 
 @app.route('/list_dir/sftp', methods=['GET', 'POST'])
 def list_dir_sftp():
-    return core_proc(sftp_list_directory)
+    return core_proc(sftp_list_directory,
+                     connect_on_local if on_local else connect_on_ecs)
+
+
+@app.route('/healthcheck', methods=['GET', 'POST'])
+def healthcheck():
+    return jsonify("OK")
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-l", "--local", default=False, action="store_true", required=False
+    )
+    args = parser.parse_args(sys.argv[1:])
+    if args.local:
+        on_local = True
+
     app.run(debug=True, host='0.0.0.0', port=8000,)
